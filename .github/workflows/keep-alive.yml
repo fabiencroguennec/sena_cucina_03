@@ -1,0 +1,22 @@
+name: Supabase Keep-Alive
+
+on:
+  schedule:
+    - cron: '0 6 * * *' # Runs daily at 6:00 AM UTC
+  workflow_dispatch: # Allows manual triggering from GitHub Actions tab
+
+jobs:
+  ping-database:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase Database
+        # This sends a simple GET request to the 'recipes' table (requesting 1 row)
+        # This API activity prevents Supabase from pausing the project.
+        run: |
+          echo "Pinging Supabase Database..."
+          curl -f -H "apikey: ${{ secrets.SUPABASE_KEY }}" \
+               -H "Authorization: Bearer ${{ secrets.SUPABASE_KEY }}" \
+               "${{ secrets.SUPABASE_URL }}/rest/v1/recipes?select=id&limit=1"
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
