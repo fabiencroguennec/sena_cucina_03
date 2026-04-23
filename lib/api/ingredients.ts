@@ -261,7 +261,7 @@ export async function getIngredientsLastPurchases(ingredientIds: string[]) {
     // Process to find unique latest per ingredient
     const latestMap: Record<string, any> = {};
     if (data) {
-        for (const item of data) {
+        for (const item of (data as any[])) {
             if (item.ingredient_id && !latestMap[item.ingredient_id]) {
                 latestMap[item.ingredient_id] = item;
             }
