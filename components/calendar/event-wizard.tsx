@@ -97,7 +97,7 @@ export function EventWizard({ onClose, onSubmit, initialData }: EventWizardProps
             color: initialData?.color || PASTEL_COLORS[0].value,
             notes: initialData?.notes || "",
             selling_price: initialData?.selling_price || 0,
-        }
+        } as any
     });
 
     const watchedDiets = useWatch({ control: form.control, name: "diets" });
