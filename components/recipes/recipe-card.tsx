@@ -1,7 +1,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { ChefHat, Clock, Euro, Users, Edit, Trash2, Printer } from 'lucide-react';
+import { ChefHat, Clock, Euro, Users, Edit, Trash2, Printer, Info } from 'lucide-react';
 import { Recipe } from '@/lib/api/recipes';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -92,45 +92,66 @@ export function RecipeCard({ recipe, onDelete, allDiets = [] }: RecipeCardProps)
                             )}
                         </div>
 
-                        {/* Allergens / Diets */}
-                        <div className="flex flex-wrap justify-end gap-1">
-                            {recipe.recipe_tags?.filter(t => t.dietary_tags?.type === 'allergen').map(t => {
-                                if (!t.dietary_tags) return null;
-                                const Icon = getIconForTag(t.dietary_tags.name, 'allergen');
-                                if (!Icon) return null;
-                                return (
-                                    <Tooltip key={t.tag_id}>
-                                        <TooltipTrigger asChild>
-                                            <div className="p-1 rounded-full bg-orange-50 text-orange-500">
-                                                <Icon className="h-3 w-3" />
-                                            </div>
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                            <p className="text-xs">{t.dietary_tags.name}</p>
-                                        </TooltipContent>
-                                    </Tooltip>
-                                );
-                            })}
+                        {/* Allergens / Diets Summary */}
+                        {(() => {
+                            const allergens = recipe.recipe_tags
+                                ?.filter(t => t.dietary_tags?.type === 'allergen')
+                                .map(t => t.dietary_tags!)
+                                .filter(Boolean) || [];
 
-                            {allDiets
-                                .filter(d => !recipe.recipe_tags?.some(rt => rt.tag_id === d.id))
-                                .map(diet => {
-                                    const Icon = getIconForTag(diet.name, 'diet');
-                                    return (
-                                        <Tooltip key={diet.id}>
-                                            <TooltipTrigger asChild>
-                                                <div className="p-1 rounded-full bg-red-50 text-red-500 opacity-70">
-                                                    {Icon ? <Icon className="h-3.5 w-3.5" /> : <span className="h-2 w-2 bg-red-500 rounded-full block m-0.5" />}
+                            const incompatibleDiets = allDiets.filter(d =>
+                                !recipe.recipe_tags?.some(rt => rt.tag_id === d.id)
+                            );
+
+                            const hasContraindications = allergens.length > 0 || incompatibleDiets.length > 0;
+
+                            if (!hasContraindications) return null;
+
+                            return (
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <div className="flex items-center justify-center h-8 w-8 rounded-full bg-orange-50/80 text-orange-500 hover:bg-orange-100 cursor-help transition-colors backdrop-blur-sm">
+                                            <Info className="h-4 w-4" />
+                                        </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="bottom" align="end" className="w-64 p-3 space-y-3 z-50">
+                                        {allergens.length > 0 && (
+                                            <div className="space-y-1.5">
+                                                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Allergènes Présents</p>
+                                                <div className="flex flex-wrap gap-1">
+                                                    {allergens.map(tag => {
+                                                        const Icon = getIconForTag(tag.name, 'allergen');
+                                                        return (
+                                                            <div key={tag.id} className="flex items-center gap-1.5 px-2 py-1 bg-orange-50 text-orange-700 rounded-md text-xs border border-orange-100 font-medium">
+                                                                {Icon && <Icon className="h-3 w-3" />}
+                                                                <span>{tag.name}</span>
+                                                            </div>
+                                                        );
+                                                    })}
                                                 </div>
-                                            </TooltipTrigger>
-                                            <TooltipContent>
-                                                <p className="text-xs">Incompatible: {diet.name}</p>
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    );
-                                })
-                            }
-                        </div>
+                                            </div>
+                                        )}
+
+                                        {incompatibleDiets.length > 0 && (
+                                            <div className="space-y-1.5">
+                                                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Régimes Incompatibles</p>
+                                                <div className="flex flex-wrap gap-1">
+                                                    {incompatibleDiets.map(diet => {
+                                                        const Icon = getIconForTag(diet.name, 'diet');
+                                                        return (
+                                                            <div key={diet.id} className="flex items-center gap-1.5 px-2 py-1 bg-slate-100 text-slate-600 rounded-md text-xs border border-slate-200">
+                                                                {Icon ? <Icon className="h-3 w-3 text-slate-400" /> : <span className="h-2 w-2 bg-slate-400 rounded-full" />}
+                                                                <span>{diet.name}</span>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </TooltipContent>
+                                </Tooltip>
+                            );
+                        })()}
                     </div>
                 </div>
 

@@ -100,6 +100,7 @@ export function EventWizard({ onClose, onSubmit, initialData }: EventWizardProps
     });
 
     const watchedDiets = useWatch({ control: form.control, name: "diets" });
+    const watchedTitle = useWatch({ control: form.control, name: "title" });
     const watchedGuestCount = useWatch({ control: form.control, name: "guest_count" });
 
 
@@ -155,8 +156,13 @@ export function EventWizard({ onClose, onSubmit, initialData }: EventWizardProps
                     </Button>
 
                     <div className="flex flex-col items-center">
-                        <span className="text-xs font-bold text-slate-900 uppercase tracking-widest mb-2">{steps[currentStep]}</span>
-                        <div className="flex gap-1.5 justify-center">
+                        <span className="text-xs font-bold text-slate-900 uppercase tracking-widest">{steps[currentStep]}</span>
+                        {watchedTitle && (
+                            <span className="text-sm font-medium text-slate-500 truncate max-w-[150px] md:max-w-[300px] leading-tight mt-0.5 mb-1.5">
+                                {watchedTitle}
+                            </span>
+                        )}
+                        <div className={cn("flex gap-1.5 justify-center", !watchedTitle && "mt-2")}>
                             {steps.map((_, i) => (
                                 <div key={i} className={cn("h-1 rounded-full transition-all duration-300",
                                     i === currentStep ? "bg-indigo-600 w-8" :

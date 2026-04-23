@@ -1,4 +1,4 @@
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ingredientSchema, IngredientFormValues, UNIT_OPTIONS, CATEGORY_OPTIONS } from "@/lib/validators/ingredient";
 import { Button } from "@/components/ui/button";
@@ -70,6 +70,8 @@ export function IngredientForm({ initialData, onSuccess, onCancel, priceHistoryN
             suppliers: [],
         },
     });
+
+    const watchedName = useWatch({ control: form.control, name: "name" });
 
     // Initialize lastSavedRef with initial values to prevent save on mount
     useEffect(() => {
@@ -179,8 +181,13 @@ export function IngredientForm({ initialData, onSuccess, onCancel, priceHistoryN
                         </Button>
 
                         <div className="flex flex-col items-center">
-                            <span className="text-xs font-bold text-slate-900 uppercase tracking-widest mb-2">{steps[currentStep]}</span>
-                            <div className="flex gap-1.5 justify-center">
+                            <span className="text-xs font-bold text-slate-900 uppercase tracking-widest">{steps[currentStep]}</span>
+                            {watchedName && (
+                                <span className="text-sm font-medium text-slate-500 truncate max-w-[150px] md:max-w-[300px] leading-tight mt-0.5 mb-1.5">
+                                    {watchedName}
+                                </span>
+                            )}
+                            <div className={cn("flex gap-1.5 justify-center", !watchedName && "mt-2")}>
                                 {steps.map((_, i) => (
                                     <div key={i} className={cn("h-1 rounded-full transition-all duration-300",
                                         i === currentStep ? "bg-slate-900 w-8" :

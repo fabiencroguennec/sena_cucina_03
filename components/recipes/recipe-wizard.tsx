@@ -111,6 +111,7 @@ export function RecipeWizard({ onClose, initialData, onUpdate }: { onClose?: () 
     });
 
     const watchedItems = useWatch({ control: form.control, name: "items" });
+    const watchedTitle = useWatch({ control: form.control, name: "title" });
     const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
 
     const getUnitAtIndex = (index: number) => {
@@ -191,8 +192,13 @@ export function RecipeWizard({ onClose, initialData, onUpdate }: { onClose?: () 
                     </Button>
 
                     <div className="flex flex-col items-center">
-                        <span className="text-xs font-bold text-slate-900 uppercase tracking-widest mb-2">{steps[currentStep]}</span>
-                        <div className="flex gap-1.5 justify-center">
+                        <span className="text-xs font-bold text-slate-900 uppercase tracking-widest">{steps[currentStep]}</span>
+                        {watchedTitle && (
+                            <span className="text-sm font-medium text-slate-500 truncate max-w-[150px] md:max-w-[300px] leading-tight mt-0.5 mb-1.5">
+                                {watchedTitle}
+                            </span>
+                        )}
+                        <div className={cn("flex gap-1.5 justify-center", !watchedTitle && "mt-2")}>
                             {steps.map((_, i) => (
                                 <div key={i} className={cn("h-1 rounded-full transition-all duration-300",
                                     i === currentStep ? "bg-emerald-600 w-8" :
@@ -393,7 +399,13 @@ export function RecipeWizard({ onClose, initialData, onUpdate }: { onClose?: () 
                                                                     {ingredients.find(i => i.id === watchedItems[index]?.ingredient_id)?.name || "Inconnu"}
                                                                 </div>
                                                                 <div className="text-xs text-slate-400">
-                                                                    {(calculatedCost / activeServings).toFixed(2)}€ estimé
+                                                                    {(() => {
+                                                                        const item = watchedItems[index];
+                                                                        const ing = ingredients.find(i => i.id === item?.ingredient_id);
+                                                                        if (!ing || !item?.quantity_needed) return <span className="opacity-50">-</span>;
+                                                                        const cost = getConvertedCost(ing.price_per_unit || 0, ing.unit || 'kg', item.quantity_needed, item.unit || 'kg');
+                                                                        return `${(cost / activeServings).toFixed(2)}€ estimé`;
+                                                                    })()}
                                                                 </div>
                                                             </div>
 
