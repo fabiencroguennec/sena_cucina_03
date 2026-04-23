@@ -81,7 +81,7 @@ export function EventWizard({ onClose, onSubmit, initialData }: EventWizardProps
 
     const form = useForm<EventFormValues>({
         // @ts-ignore - resolver type mismatch due to complex schema
-        resolver: zodResolver(eventSchema),
+        resolver: zodResolver(eventSchema) as any,
         defaultValues: {
             title: initialData?.title || "",
             start_date: initialData?.start_date?.split('T')[0] || new Date().toISOString().split('T')[0],
